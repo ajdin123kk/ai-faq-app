@@ -1,6 +1,5 @@
 // frontend/src/App.js
 import React, { useState } from "react";
-import 'tailwindcss/tailwind.css';
 
 function App() {
   const [question, setQuestion] = useState("");

@@ -42,7 +42,7 @@ function App() {
         className="w-full p-3 rounded border"
         placeholder="Ask me anything..."
         value={question}
-        onChange={e => setQuestion(e.target.value)}
+        onChange={(e) => setQuestion(e.target.value)}
       />
       <button
         onClick={askQuestion}

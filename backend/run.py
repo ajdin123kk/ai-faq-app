@@ -11,6 +11,16 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 def home():
     return {"message": "Backend is running!"}
 
+# ✅ List all available models
+@app.route("/models", methods=["GET"])
+def list_models():
+    try:
+        models = genai.list_models()
+        model_names = [m.name for m in models]
+        return jsonify({"available_models": model_names})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/faq", methods=["POST"])
 def faq():
     data = request.get_json()
@@ -20,11 +30,9 @@ def faq():
         return jsonify({"error": "No question provided"}), 400
 
     try:
-        model = genai.GenerativeModel("gemini-pro")
+        # ✅ Use correct model name
+        model = genai.GenerativeModel("models/gemini-pro")
         response = model.generate_content(question)
         return jsonify({"answer": response.text})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run()
+        return

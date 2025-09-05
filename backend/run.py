@@ -24,7 +24,7 @@ def list_models():
 def faq():
     data = request.get_json()
     question = data.get("question", "")
-    model_name = data.get("model", "models/gemini-1.5-pro-latest")
+    model_name = data.get("model", "models/gemini-1.5-flash")
 
     if not question:
         return jsonify({"error": "No question provided"}), 400

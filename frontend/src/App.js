@@ -1,5 +1,6 @@
 // frontend/src/App.js
 import React, { useState } from "react";
+import ReactMarkdown from "react-markdown"; // ✅ new import
 
 function App() {
   const [question, setQuestion] = useState("");
@@ -9,7 +10,7 @@ function App() {
 
   const askQuestion = async () => {
     if (!question.trim()) {
-      setError("Please enter a question.");
+      setError("⚠️ Please enter a question.");
       return;
     }
     setError("");
@@ -29,35 +30,46 @@ function App() {
         setAnswer(data.answer);
       }
     } catch {
-      setError("Network error, try again.");
+      setError("❌ Network error, please try again.");
     }
     setLoading(false);
   };
 
   return (
-    <div className="max-w-md mx-auto mt-12 font-sans p-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">AI FAQ Assistant</h1>
-      <textarea
-        rows="4"
-        className="w-full p-3 rounded border"
-        placeholder="Ask me anything..."
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-      />
-      <button
-        onClick={askQuestion}
-        className="mt-3 py-2 px-4 bg-blue-600 text-white rounded hover:bg-blue-700 w-full"
-        disabled={loading}
-      >
-        {loading ? "Thinking..." : "Ask"}
-      </button>
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-      {answer && (
-        <div className="mt-4 p-4 bg-gray-100 rounded">
-          <h3 className="font-semibold">Answer:</h3>
-          <p>{answer}</p>
-        </div>
-      )}
+    <div className="min-h-screen bg-gray-50 flex flex-col items-center p-6">
+      <div className="max-w-2xl w-full bg-white shadow-lg rounded-2xl p-6">
+        <h1 className="text-3xl font-bold mb-6 text-center text-blue-700">
+          🤖 AI FAQ Assistant
+        </h1>
+
+        <textarea
+          rows="4"
+          className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Ask me anything..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+
+        <button
+          onClick={askQuestion}
+          className="mt-4 py-3 px-6 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition w-full"
+          disabled={loading}
+        >
+          {loading ? "Thinking..." : "Ask"}
+        </button>
+
+        {error && (
+          <p className="text-red-600 mt-4 text-center font-medium">{error}</p>
+        )}
+
+        {answer && (
+          <div className="mt-6 p-5 bg-gray-100 rounded-xl prose prose-blue max-w-none">
+            <h3 className="font-semibold text-lg mb-2">Answer:</h3>
+            {/* ✅ Render Markdown */}
+            <ReactMarkdown>{answer}</ReactMarkdown>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

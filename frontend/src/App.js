@@ -43,46 +43,58 @@ function App() {
 
   return (
     <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-black flex flex-col items-center justify-center p-6 transition-all duration-500">
+        
         {/* Dark Mode Toggle */}
         <button
           onClick={() => setDarkMode(!darkMode)}
-          className="absolute top-4 right-4 px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 dark:text-white"
+          className="absolute top-5 right-5 px-4 py-2 rounded-full shadow-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-md text-sm font-medium hover:scale-105 transition"
         >
           {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
 
-        <div className="max-w-2xl w-full bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-6">
-          <h1 className="text-3xl font-bold mb-6 text-center text-blue-700 dark:text-blue-300">
+        {/* Card Container */}
+        <div className="max-w-2xl w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl rounded-3xl p-8 border border-gray-200 dark:border-gray-700 transition-all">
+          
+          <h1 className="text-4xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
             🤖 AI FAQ Assistant
           </h1>
 
-          <textarea
-            rows="4"
-            className="w-full p-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
-            placeholder="Ask me anything..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-          />
+          {/* Input Area */}
+          <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-2xl p-3 shadow-inner">
+            <textarea
+              rows="2"
+              className="flex-1 p-3 bg-transparent rounded-xl focus:outline-none focus:ring-0 text-gray-800 dark:text-gray-100 resize-none"
+              placeholder="Type your question here..."
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+            />
+            <button
+              onClick={askQuestion}
+              disabled={loading}
+              className={`px-5 py-3 rounded-2xl font-semibold text-white transition-all duration-300 shadow-md ${
+                loading
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105"
+              }`}
+            >
+              {loading ? "Thinking..." : "Ask"}
+            </button>
+          </div>
 
-          <button
-            onClick={askQuestion}
-            className="mt-4 py-3 px-6 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition w-full"
-            disabled={loading}
-          >
-            {loading ? "Thinking..." : "Ask"}
-          </button>
-
+          {/* Error Message */}
           {error && (
-            <p className="text-red-600 dark:text-red-400 mt-4 text-center font-medium">
+            <p className="text-red-600 dark:text-red-400 mt-4 text-center font-medium animate-pulse">
               {error}
             </p>
           )}
 
+          {/* Answer Section */}
           {answer && (
-            <div className="mt-6 p-5 bg-gray-100 dark:bg-gray-700 rounded-xl prose prose-blue dark:prose-invert max-w-none">
-              <h3 className="font-semibold text-lg mb-2">Answer:</h3>
-              {/* Animated typing with Markdown support */}
+            <div className="mt-6 p-5 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-lg prose prose-blue dark:prose-invert max-w-none animate-fadeIn">
+              <h3 className="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">
+                Answer:
+              </h3>
               <ReactMarkdown>
                 <Typewriter words={[answer]} typeSpeed={20} cursor={false} />
               </ReactMarkdown>

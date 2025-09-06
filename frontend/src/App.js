@@ -1,14 +1,23 @@
 // frontend/src/App.js
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { Typewriter } from "react-simple-typewriter";
 
 function App() {
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [messages, setMessages] = useState([]); // chat history
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [darkMode, setDarkMode] = useState(false);
+  const chatEndRef = useRef(null);
+
+  const scrollToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, loading]);
 
   const askQuestion = async () => {
     if (!question.trim()) {
@@ -17,7 +26,10 @@ function App() {
     }
     setError("");
     setLoading(true);
-    setAnswer("");
+
+    const newMessage = { role: "user", text: question };
+    setMessages((prev) => [...prev, newMessage]);
+    setQuestion("");
 
     try {
       const res = await fetch("https://ai-faq-app.onrender.com/faq", {
@@ -27,13 +39,13 @@ function App() {
       });
       const data = await res.json();
       if (data.error) {
-        if (data.error.includes("quota")) {
-          setError("🚦 We've hit today's free quota. Please try again later.");
-        } else {
-          setError(data.error);
-        }
+        setError(
+          data.error.includes("quota")
+            ? "🚦 Free quota reached. Try again later."
+            : data.error
+        );
       } else {
-        setAnswer(data.answer);
+        setMessages((prev) => [...prev, { role: "bot", text: data.answer }]);
       }
     } catch {
       setError("❌ Network error, please try again.");
@@ -53,18 +65,53 @@ function App() {
           {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
 
-        {/* Card Container */}
-        <div className="max-w-2xl w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl rounded-3xl p-8 border border-gray-200 dark:border-gray-700 transition-all">
-          
-          <h1 className="text-4xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text">
+        {/* Chat Container */}
+        <div className="max-w-2xl w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl rounded-3xl p-8 border border-gray-200 dark:border-gray-700 flex flex-col transition-all">
+          <h1 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text animate-fadeIn">
             🤖 AI FAQ Assistant
           </h1>
 
+          {/* Messages */}
+          <div className="flex-1 overflow-y-auto max-h-[60vh] space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
+            {messages.map((msg, i) => (
+              <div
+                key={i}
+                className={`p-4 rounded-2xl max-w-[80%] shadow-md animate-fadeIn ${
+                  msg.role === "user"
+                    ? "ml-auto bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none"
+                    : "mr-auto bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-none"
+                }`}
+              >
+                {msg.role === "bot" ? (
+                  <ReactMarkdown className="prose dark:prose-invert max-w-none">
+                    <Typewriter
+                      words={[msg.text]}
+                      typeSpeed={20}
+                      cursor={false}
+                    />
+                  </ReactMarkdown>
+                ) : (
+                  msg.text
+                )}
+              </div>
+            ))}
+
+            {/* Typing Indicator */}
+            {loading && (
+              <div className="mr-auto flex items-center gap-2 p-4 rounded-2xl bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 shadow-md">
+                <span className="w-2 h-2 bg-gray-700 dark:bg-gray-200 rounded-full animate-bounce"></span>
+                <span className="w-2 h-2 bg-gray-700 dark:bg-gray-200 rounded-full animate-bounce delay-150"></span>
+                <span className="w-2 h-2 bg-gray-700 dark:bg-gray-200 rounded-full animate-bounce delay-300"></span>
+              </div>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+
           {/* Input Area */}
-          <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-2xl p-3 shadow-inner">
+          <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-2xl p-3 shadow-inner mt-6">
             <textarea
               rows="2"
-              className="flex-1 p-3 bg-transparent rounded-xl focus:outline-none focus:ring-0 text-gray-800 dark:text-gray-100 resize-none"
+              className="flex-1 p-3 bg-transparent rounded-xl focus:outline-none text-gray-800 dark:text-gray-100 resize-none"
               placeholder="Type your question here..."
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -78,27 +125,15 @@ function App() {
                   : "bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105"
               }`}
             >
-              {loading ? "Thinking..." : "Ask"}
+              Ask
             </button>
           </div>
 
-          {/* Error Message */}
+          {/* Error */}
           {error && (
             <p className="text-red-600 dark:text-red-400 mt-4 text-center font-medium animate-pulse">
               {error}
             </p>
-          )}
-
-          {/* Answer Section */}
-          {answer && (
-            <div className="mt-6 p-5 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl shadow-lg prose prose-blue dark:prose-invert max-w-none animate-fadeIn">
-              <h3 className="font-semibold text-lg mb-2 text-gray-800 dark:text-gray-200">
-                Answer:
-              </h3>
-              <ReactMarkdown>
-                <Typewriter words={[answer]} typeSpeed={20} cursor={false} />
-              </ReactMarkdown>
-            </div>
           )}
         </div>
       </div>

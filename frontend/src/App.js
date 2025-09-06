@@ -1,142 +1,83 @@
-// frontend/src/App.js
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import ReactMarkdown from "react-markdown";
-import { Typewriter } from "react-simple-typewriter";
 
 function App() {
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([]); // chat history
+  const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [darkMode, setDarkMode] = useState(false);
-  const chatEndRef = useRef(null);
+  const [theme, setTheme] = useState("light");
 
-  const scrollToBottom = () => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
+  // Update HTML root when theme changes
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, loading]);
+    document.documentElement.classList.remove("light", "dark");
+    document.documentElement.classList.add(theme);
+  }, [theme]);
 
+  // Handle asking a question
   const askQuestion = async () => {
-    if (!question.trim()) {
-      setError("⚠️ Please enter a question.");
-      return;
-    }
-    setError("");
-    setLoading(true);
+    if (!question.trim()) return;
 
-    const newMessage = { role: "user", text: question };
-    setMessages((prev) => [...prev, newMessage]);
-    setQuestion("");
+    setLoading(true);
+    setAnswer("");
 
     try {
-      const res = await fetch("https://ai-faq-app.onrender.com/faq", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setError(
-          data.error.includes("quota")
-            ? "🚦 Free quota reached. Try again later."
-            : data.error
-        );
-      } else {
-        setMessages((prev) => [...prev, { role: "bot", text: data.answer }]);
-      }
-    } catch {
-      setError("❌ Network error, please try again.");
+      const response = await axios.post(
+        "https://your-backend.onrender.com/api/ask", // ⬅️ replace with your backend URL
+        { question }
+      );
+      setAnswer(response.data.answer || "No answer received.");
+    } catch (error) {
+      console.error(error);
+      setAnswer("⚠️ Network error. Please check backend URL.");
     }
+
     setLoading(false);
   };
 
   return (
-    <div className={darkMode ? "dark" : ""}>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-black flex flex-col items-center justify-center p-6 transition-all duration-500">
-        
-        {/* Dark Mode Toggle */}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-300">
+      {/* Header */}
+      <header className="w-full max-w-2xl flex justify-between items-center px-4 py-3">
+        <h1 className="text-2xl font-bold">🤖 AI FAQ Assistant</h1>
         <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="absolute top-5 right-5 px-4 py-2 rounded-full shadow-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-md text-sm font-medium hover:scale-105 transition"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          className="px-3 py-1 rounded-lg border bg-gray-200 dark:bg-gray-800"
         >
-          {darkMode ? "☀️ Light" : "🌙 Dark"}
+          {theme === "light" ? "🌙 Dark" : "☀️ Light"}
         </button>
+      </header>
 
-        {/* Chat Container */}
-        <div className="max-w-2xl w-full bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl shadow-2xl rounded-3xl p-8 border border-gray-200 dark:border-gray-700 flex flex-col transition-all">
-          <h1 className="text-3xl font-extrabold mb-6 text-center bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-transparent bg-clip-text animate-fadeIn">
-            🤖 AI FAQ Assistant
-          </h1>
+      {/* Main Input */}
+      <main className="w-full max-w-2xl px-4 py-6">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Ask me anything about AI..."
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={askQuestion}
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? "Thinking..." : "Ask"}
+          </button>
+        </div>
 
-          {/* Messages */}
-          <div className="flex-1 overflow-y-auto max-h-[60vh] space-y-4 pr-2 scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`p-4 rounded-2xl max-w-[80%] shadow-md animate-fadeIn ${
-                  msg.role === "user"
-                    ? "ml-auto bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-none"
-                    : "mr-auto bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-none"
-                }`}
-              >
-                {msg.role === "bot" ? (
-                  <ReactMarkdown className="prose dark:prose-invert max-w-none">
-                    <Typewriter
-                      words={[msg.text]}
-                      typeSpeed={20}
-                      cursor={false}
-                    />
-                  </ReactMarkdown>
-                ) : (
-                  msg.text
-                )}
-              </div>
-            ))}
-
-            {/* Typing Indicator */}
-            {loading && (
-              <div className="mr-auto flex items-center gap-2 p-4 rounded-2xl bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-100 shadow-md">
-                <span className="w-2 h-2 bg-gray-700 dark:bg-gray-200 rounded-full animate-bounce"></span>
-                <span className="w-2 h-2 bg-gray-700 dark:bg-gray-200 rounded-full animate-bounce delay-150"></span>
-                <span className="w-2 h-2 bg-gray-700 dark:bg-gray-200 rounded-full animate-bounce delay-300"></span>
-              </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
-
-          {/* Input Area */}
-          <div className="flex items-center gap-3 bg-gray-100 dark:bg-gray-800 rounded-2xl p-3 shadow-inner mt-6">
-            <textarea
-              rows="2"
-              className="flex-1 p-3 bg-transparent rounded-xl focus:outline-none text-gray-800 dark:text-gray-100 resize-none"
-              placeholder="Type your question here..."
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-            />
-            <button
-              onClick={askQuestion}
-              disabled={loading}
-              className={`px-5 py-3 rounded-2xl font-semibold text-white transition-all duration-300 shadow-md ${
-                loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-blue-500 to-purple-600 hover:scale-105"
-              }`}
-            >
-              Ask
-            </button>
-          </div>
-
-          {/* Error */}
-          {error && (
-            <p className="text-red-600 dark:text-red-400 mt-4 text-center font-medium animate-pulse">
-              {error}
+        {/* Answer Section */}
+        <div className="mt-6 p-4 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
+          {answer ? (
+            <ReactMarkdown>{answer}</ReactMarkdown>
+          ) : (
+            <p className="text-gray-500 dark:text-gray-400">
+              🤔 Ask a question to see the answer here.
             </p>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }

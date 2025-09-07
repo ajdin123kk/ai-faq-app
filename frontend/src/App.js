@@ -1,83 +1,104 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import ReactMarkdown from "react-markdown";
+import { useTypewriter } from "react-simple-typewriter";
+
+// Backend URL (Render)
+const BACKEND_URL = "https://ai-faq-app.onrender.com/ask";
 
 function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [theme, setTheme] = useState("light");
 
-  // Update HTML root when theme changes
-  useEffect(() => {
-    document.documentElement.classList.remove("light", "dark");
-    document.documentElement.classList.add(theme);
-  }, [theme]);
+  const [text] = useTypewriter({
+    words: ["AI FAQ Assistant", "Ask me anything!", "Powered by AI"],
+    loop: true,
+    delaySpeed: 2000,
+  });
 
-  // Handle asking a question
-  const askQuestion = async () => {
+  const handleAsk = async () => {
     if (!question.trim()) return;
-
-    setLoading(true);
     setAnswer("");
+    setError(null);
+    setLoading(true);
 
     try {
-      const response = await axios.post(
-        "https://your-backend.onrender.com/api/ask", // ⬅️ replace with your backend URL
-        { question }
+      const res = await axios.post(BACKEND_URL, { question });
+      setAnswer(res.data.answer);
+    } catch (err) {
+      console.error("Network error:", err);
+      setError(
+        "⚠️ Unable to reach backend. Please check server or try again later."
       );
-      setAnswer(response.data.answer || "No answer received.");
-    } catch (error) {
-      console.error(error);
-      setAnswer("⚠️ Network error. Please check backend URL.");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-white transition-colors duration-300">
-      {/* Header */}
-      <header className="w-full max-w-2xl flex justify-between items-center px-4 py-3">
-        <h1 className="text-2xl font-bold">🤖 AI FAQ Assistant</h1>
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#0f172a",
+        color: "white",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "20px",
+        fontFamily: "Arial, sans-serif",
+      }}
+    >
+      <h1 style={{ fontSize: "2rem", marginBottom: "10px", color: "#38bdf8" }}>
+        {text}
+      </h1>
+      <div style={{ maxWidth: "500px", width: "100%", textAlign: "center" }}>
+        <input
+          type="text"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask me a question..."
+          style={{
+            width: "100%",
+            padding: "10px",
+            borderRadius: "8px",
+            border: "1px solid #38bdf8",
+            marginBottom: "10px",
+            color: "black",
+          }}
+        />
         <button
-          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          className="px-3 py-1 rounded-lg border bg-gray-200 dark:bg-gray-800"
+          onClick={handleAsk}
+          style={{
+            padding: "10px 20px",
+            borderRadius: "8px",
+            backgroundColor: "#38bdf8",
+            border: "none",
+            cursor: "pointer",
+            color: "black",
+            fontWeight: "bold",
+          }}
+          disabled={loading}
         >
-          {theme === "light" ? "🌙 Dark" : "☀️ Light"}
+          {loading ? "Thinking..." : "Ask"}
         </button>
-      </header>
-
-      {/* Main Input */}
-      <main className="w-full max-w-2xl px-4 py-6">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Ask me anything about AI..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            onClick={askQuestion}
-            disabled={loading}
-            className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+      </div>
+      <div style={{ marginTop: "20px", maxWidth: "600px", textAlign: "center" }}>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        {answer && (
+          <p
+            style={{
+              backgroundColor: "#1e293b",
+              padding: "15px",
+              borderRadius: "10px",
+              boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
+            }}
           >
-            {loading ? "Thinking..." : "Ask"}
-          </button>
-        </div>
-
-        {/* Answer Section */}
-        <div className="mt-6 p-4 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800">
-          {answer ? (
-            <ReactMarkdown>{answer}</ReactMarkdown>
-          ) : (
-            <p className="text-gray-500 dark:text-gray-400">
-              🤔 Ask a question to see the answer here.
-            </p>
-          )}
-        </div>
-      </main>
+            {answer}
+          </p>
+        )}
+      </div>
     </div>
   );
 }

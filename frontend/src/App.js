@@ -4,88 +4,95 @@ import { motion } from "framer-motion";
 
 function App() {
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      sender: "bot",
-      text: "👋 Welcome to our Business FAQ Assistant!\n\nYou can ask me things like:\n• What services do you offer?\n• How much does it cost?\n• How do I get started?\n• Do you offer support?\n• Do you work internationally?",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = async () => {
+  const handleAsk = async () => {
     if (!question.trim()) return;
 
-    const userMsg = { sender: "user", text: question };
-    setMessages((prev) => [...prev, userMsg]);
+    // Add user question to messages
+    setMessages((prev) => [...prev, { role: "user", text: question }]);
+    setLoading(true);
 
     try {
       const response = await axios.post("https://ai-faq-app.onrender.com/ask", {
         question,
       });
 
-      const botMsg = { sender: "bot", text: response.data.answer };
-      setMessages((prev) => [...prev, botMsg]);
+      const answer =
+        response.data.answer || "Sorry, I couldn’t find an answer for that.";
+
+      setMessages((prev) => [...prev, { role: "bot", text: answer }]);
     } catch (error) {
-      const botMsg = {
-        sender: "bot",
-        text: "❌ Error fetching response. Please try again.",
-      };
-      setMessages((prev) => [...prev, botMsg]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", text: "❌ Error fetching response. Please try again." },
+      ]);
     }
 
+    setLoading(false);
     setQuestion("");
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-4">
-      <div className="w-full max-w-2xl flex flex-col h-[90vh] rounded-2xl shadow-2xl backdrop-blur-lg bg-white/20 border border-white/30 overflow-hidden">
-        
-        {/* Header */}
-        <div className="bg-white/30 text-white text-lg font-bold p-4 text-center shadow-md">
-          💬 Business FAQ Assistant
-        </div>
+    <div className="min-h-screen flex flex-col items-center justify-between bg-gradient-to-br from-indigo-50 via-white to-cyan-50 text-gray-800 p-6">
+      {/* Header */}
+      <motion.h1
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-3xl font-bold text-indigo-700 mb-6"
+      >
+        🤖 AI FAQ Assistant
+      </motion.h1>
 
-        {/* Chat Window */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {messages.map((msg, index) => (
+      {/* Chat Window */}
+      <div className="flex-1 w-full max-w-2xl bg-white shadow-lg rounded-2xl p-6 flex flex-col overflow-y-auto border border-gray-200">
+        <div className="flex flex-col gap-4">
+          {messages.map((msg, i) => (
             <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 10 }}
+              key={i}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className={`p-3 rounded-2xl max-w-[75%] whitespace-pre-line shadow-md ${
-                msg.sender === "user"
-                  ? "bg-blue-600 text-white ml-auto"
-                  : "bg-white/90 text-gray-900 mr-auto"
+              className={`p-3 rounded-xl max-w-xs ${
+                msg.role === "user"
+                  ? "ml-auto bg-indigo-500 text-white"
+                  : "mr-auto bg-gray-100 text-gray-800"
               }`}
             >
               {msg.text}
             </motion.div>
           ))}
+          {loading && (
+            <div className="text-gray-500 text-sm">AI is thinking...</div>
+          )}
         </div>
+      </div>
 
-        {/* Input + Contact */}
-        <div className="bg-white/30 backdrop-blur-md p-3 flex gap-2 items-center">
-          <input
-            type="text"
-            className="flex-1 px-3 py-2 rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Type your question..."
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSend()}
-          />
-          <button
-            onClick={handleSend}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl shadow"
-          >
-            Send
-          </button>
-          <a
-            href="mailto:muktaribro13@gmail.com"
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-xl shadow"
-          >
-            Contact Us
-          </a>
-        </div>
+      {/* Input Area */}
+      <div className="w-full max-w-2xl mt-4 flex items-center gap-2">
+        <input
+          type="text"
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask me something..."
+          className="flex-1 border px-4 py-2 rounded-lg bg-white text-gray-800 placeholder-gray-500"
+        />
+        <button
+          onClick={handleAsk}
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
+        >
+          Send
+        </button>
+      </div>
+
+      {/* Contact Us */}
+      <div className="mt-6 text-center">
+        <a
+          href="mailto:youremail@example.com"
+          className="bg-cyan-500 text-white px-4 py-2 rounded-lg shadow hover:bg-cyan-600 transition"
+        >
+          Contact Us
+        </a>
       </div>
     </div>
   );

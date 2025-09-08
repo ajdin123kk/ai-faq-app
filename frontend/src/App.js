@@ -1,33 +1,27 @@
 import React, { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import "./App.css";
+import axios from "axios";
 
 function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!question.trim()) return;
+  // Backend endpoint (your Render URL)
+  const BACKEND = "https://ai-faq-app.onrender.com/ask";
 
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+    if (!question.trim()) return;
     setLoading(true);
     setAnswer("");
 
     try {
-      const res = await fetch("https://ai-faq-app.onrender.com/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      const data = await res.json();
-      setAnswer(data.answer || "No answer received from backend.");
-    } catch (error) {
+      const res = await axios.post(BACKEND, { question });
+      setAnswer(res?.data?.answer || "No answer received from backend.");
+    } catch (err) {
+      console.error(err);
       setAnswer("⚠️ Error connecting to backend. Please try again later.");
     } finally {
       setLoading(false);
@@ -36,20 +30,22 @@ function App() {
 
   return (
     <div className="app">
-      <h1>AI FAQ App</h1>
-      <form onSubmit={handleSubmit}>
+      <h1>🤖 AI FAQ App</h1>
+
+      <form onSubmit={handleSubmit} className="form">
         <input
-          type="text"
-          placeholder="Ask me anything..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
+          placeholder="Ask me anything..."
+          className="input"
         />
-        <button type="submit" disabled={loading}>
+        <button className="btn" type="submit" disabled={loading}>
           {loading ? "Thinking..." : "Ask"}
         </button>
       </form>
+
       <div className="answer">
-        <ReactMarkdown>{answer}</ReactMarkdown>
+        {answer ? <ReactMarkdown>{answer}</ReactMarkdown> : <p>No answer yet.</p>}
       </div>
     </div>
   );

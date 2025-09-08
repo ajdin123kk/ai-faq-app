@@ -5,10 +5,10 @@ const bodyParser = require("body-parser");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Fix CORS so frontend (Vercel/Render) can connect
+// Enable CORS
 app.use(
   cors({
-    origin: "*", // You can replace "*" with your frontend URL later for security
+    origin: "*", // replace with frontend URL later for security
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -16,12 +16,12 @@ app.use(
 
 app.use(bodyParser.json());
 
-// ✅ Health check route
+// Health check
 app.get("/", (req, res) => {
   res.json({ message: "Backend is running!" });
 });
 
-// ✅ AI FAQ route
+// FAQ AI route
 app.post("/api/ask", (req, res) => {
   const { question } = req.body;
 
@@ -29,7 +29,6 @@ app.post("/api/ask", (req, res) => {
     return res.status(400).json({ answer: "Please provide a question." });
   }
 
-  // For now, mock an AI response
   let answer = "";
 
   if (question.toLowerCase().includes("hello")) {
@@ -43,7 +42,7 @@ app.post("/api/ask", (req, res) => {
   res.json({ answer });
 });
 
-// ✅ Start server
+// Start server
 app.listen(PORT, () => {
   console.log(`✅ Backend running on port ${PORT}`);
 });

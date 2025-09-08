@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 5000;
 // Enable CORS
 app.use(
   cors({
-    origin: "*", // replace with frontend URL later for security
+    origin: "*", // you can replace * with your frontend URL for security
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
@@ -16,12 +16,12 @@ app.use(
 
 app.use(bodyParser.json());
 
-// Health check
+// Health check route
 app.get("/", (req, res) => {
   res.json({ message: "Backend is running!" });
 });
 
-// FAQ AI route
+// AI FAQ route
 app.post("/api/ask", (req, res) => {
   const { question } = req.body;
 

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import "./App.css";
 
@@ -7,59 +6,51 @@ function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
-  const [darkMode, setDarkMode] = useState(true); // default dark mode
 
-  const handleAsk = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!question.trim()) return;
+
     setLoading(true);
     setAnswer("");
 
     try {
-      const res = await axios.post("https://ai-faq-app.onrender.com/api/ask", {
-        question,
+      const res = await fetch("https://ai-faq-app.onrender.com/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question }),
       });
-      setAnswer(res.data.answer);
-    } catch (err) {
-      setAnswer("⚠️ Network error. Please check backend URL.");
+
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      const data = await res.json();
+      setAnswer(data.answer || "No answer received from backend.");
+    } catch (error) {
+      setAnswer("⚠️ Error connecting to backend. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={`app ${darkMode ? "dark" : "light"}`}>
-      <header className="header">
-        <h1>🤖 AI FAQ Assistant</h1>
-        <button className="toggle-btn" onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? "🌙 Dark Mode" : "☀️ Light Mode"}
+    <div className="app">
+      <h1>AI FAQ App</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Ask me anything..."
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
+        />
+        <button type="submit" disabled={loading}>
+          {loading ? "Thinking..." : "Ask"}
         </button>
-      </header>
-
-      <main className="main">
-        <div className="input-section">
-          <textarea
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            placeholder="Ask me anything..."
-          />
-          <button onClick={handleAsk} disabled={loading}>
-            {loading ? "⏳ Thinking..." : "💡 Ask"}
-          </button>
-        </div>
-
-        <div className="answer-section">
-          {answer && (
-            <>
-              <h2>📝 Answer:</h2>
-              <ReactMarkdown>{answer}</ReactMarkdown>
-            </>
-          )}
-        </div>
-      </main>
-
-      <footer className="footer">
-        <p>Built by Muktar Ibrahim ✨</p>
-      </footer>
+      </form>
+      <div className="answer">
+        <ReactMarkdown>{answer}</ReactMarkdown>
+      </div>
     </div>
   );
 }

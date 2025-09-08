@@ -1,48 +1,51 @@
-import express from "express";
-import cors from "cors";
+const express = require("express");
+const cors = require("cors");
 
 const app = express();
+const PORT = process.env.PORT || 5000;
+
 app.use(cors());
 app.use(express.json());
 
-const faqs = {
-  "What services do you offer?": "We provide AI-powered FAQ assistants, chatbot development, and business automation tools.",
-  "How much does it cost?": "Pricing depends on your needs. We offer flexible plans starting from $99/month.",
-  "How do I get started?": "Simply contact us and we’ll help you set up your AI assistant within a few days.",
-  "Do you offer support?": "Yes! We provide full customer support via email and chat.",
-  "Do you work internationally?": "Absolutely, we work with businesses around the world 🌍."
+// Predefined FAQ answers
+const faqAnswers = {
+  "what services do you offer": "We provide AI-powered FAQ bots, web apps, and automation solutions for businesses.",
+  "how much does it cost": "Our pricing is flexible. We offer affordable starter plans and custom quotes based on your needs.",
+  "how do i get started": "You can get started by contacting us via email. We’ll guide you through setup in a few easy steps.",
+  "do you offer support": "Yes, we provide ongoing support to make sure everything runs smoothly for your business.",
+  "do you work internationally": "Yes! We work with businesses worldwide 🌍."
 };
 
+// Root check
+app.get("/", (req, res) => {
+  res.json({ message: "Backend is running!" });
+});
+
+// Ask route
 app.post("/ask", (req, res) => {
-  const { question } = req.body;
+  const userQuestion = (req.body.question || "").toLowerCase();
 
-  if (!question) {
-    return res.status(400).json({ answer: "❌ Please provide a question." });
+  if (!userQuestion) {
+    return res.status(400).json({ answer: "Please provide a question." });
   }
 
-  const normalizedQ = question.trim().toLowerCase();
-
-  // Try to match
-  const matchedKey = Object.keys(faqs).find(
-    (q) => q.toLowerCase() === normalizedQ
-  );
-
-  if (matchedKey) {
-    return res.json({ answer: faqs[matchedKey] });
+  // Try to match FAQs
+  for (const key in faqAnswers) {
+    if (userQuestion.includes(key)) {
+      return res.json({ answer: faqAnswers[key] });
+    }
   }
 
-  // Friendly fallback
-  return res.json({
-    answer: `🤔 I don’t have a direct answer for: **"${question}"**.  
-Here are some questions you can ask me instead:  
-- What services do you offer?  
-- How much does it cost?  
-- How do I get started?  
-- Do you offer support?  
-- Do you work internationally?`
+  // Fallback response with clickable suggestions
+  res.json({
+    answer:
+      `🤔 I’m not sure about "${req.body.question}". Here are some things you can ask me:\n\n` +
+      `- What services do you offer?\n` +
+      `- How much does it cost?\n` +
+      `- How do I get started?\n` +
+      `- Do you offer support?\n` +
+      `- Do you work internationally?`
   });
 });
 
-app.listen(5000, () => {
-  console.log("✅ Server running on http://localhost:5000");
-});
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

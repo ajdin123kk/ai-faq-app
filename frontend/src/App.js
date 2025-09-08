@@ -1,97 +1,107 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
 
 function App() {
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([]);
+  const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleAsk = async () => {
-    if (!question.trim()) return;
+  const backendUrl = "https://ai-faq-app.onrender.com/ask";
 
-    // Add user question to messages
-    setMessages((prev) => [...prev, { role: "user", text: question }]);
+  const faqSuggestions = [
+    "How can I increase my online sales?",
+    "What’s the best way to handle customer complaints?",
+    "How do I improve my website SEO?",
+    "Should I run Facebook or Google ads?",
+    "What’s the best way to follow up with clients?",
+  ];
+
+  const askQuestion = async (q) => {
+    if (!q) return;
     setLoading(true);
+    setAnswer("");
 
     try {
-      const response = await axios.post("https://ai-faq-app.onrender.com/ask", {
-        question,
-      });
-
-      const answer =
-        response.data.answer || "Sorry, I couldn’t find an answer for that.";
-
-      setMessages((prev) => [...prev, { role: "bot", text: answer }]);
+      const response = await axios.post(backendUrl, { question: q });
+      setAnswer(response.data.answer || "No answer received.");
     } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", text: "❌ Error fetching response. Please try again." },
-      ]);
+      console.error(error);
+      setAnswer("❌ Error fetching response. Please try again.");
     }
 
     setLoading(false);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    askQuestion(question);
     setQuestion("");
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-between bg-gradient-to-br from-indigo-50 via-white to-cyan-50 text-gray-800 p-6">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
       {/* Header */}
-      <motion.h1
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-3xl font-bold text-indigo-700 mb-6"
-      >
-        🤖 AI FAQ Assistant
-      </motion.h1>
+      <h1 className="text-3xl font-bold text-primary mb-4">
+        💬 AI Business FAQ Assistant
+      </h1>
+      <p className="text-gray-700 mb-6 text-center max-w-xl">
+        Ask me common business questions, or pick from the suggestions below.
+      </p>
 
-      {/* Chat Window */}
-      <div className="flex-1 w-full max-w-2xl bg-white shadow-lg rounded-2xl p-6 flex flex-col overflow-y-auto border border-gray-200">
-        <div className="flex flex-col gap-4">
-          {messages.map((msg, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`p-3 rounded-xl max-w-xs ${
-                msg.role === "user"
-                  ? "ml-auto bg-indigo-500 text-white"
-                  : "mr-auto bg-gray-100 text-gray-800"
-              }`}
-            >
-              {msg.text}
-            </motion.div>
-          ))}
-          {loading && (
-            <div className="text-gray-500 text-sm">AI is thinking...</div>
-          )}
-        </div>
+      {/* FAQ Suggestions */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6 w-full max-w-2xl">
+        {faqSuggestions.map((faq, idx) => (
+          <button
+            key={idx}
+            onClick={() => askQuestion(faq)}
+            className="bg-white border border-gray-300 text-gray-900 p-3 rounded-xl shadow hover:bg-gray-50 transition text-left"
+          >
+            {faq}
+          </button>
+        ))}
       </div>
 
-      {/* Input Area */}
-      <div className="w-full max-w-2xl mt-4 flex items-center gap-2">
-        <input
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Ask me something..."
-          className="flex-1 border px-4 py-2 rounded-lg bg-white text-gray-800 placeholder-gray-500"
-        />
-        <button
-          onClick={handleAsk}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:bg-indigo-700 transition"
-        >
-          Send
-        </button>
+      {/* Chat Box */}
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-lg p-6 flex flex-col space-y-4">
+        {/* Question Form */}
+        <form onSubmit={handleSubmit} className="flex space-x-2">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Type your question..."
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary"
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            {loading ? "Thinking..." : "Ask"}
+          </button>
+        </form>
+
+        {/* Chat Display */}
+        {answer && (
+          <div className="flex flex-col space-y-2">
+            <div className="self-end bg-primary text-white px-4 py-2 rounded-xl max-w-xs shadow">
+              You asked: {question || "Selected from FAQ"}
+            </div>
+            <div className="self-start bg-gray-200 text-gray-900 px-4 py-2 rounded-xl max-w-xs shadow">
+              {answer}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Contact Us */}
       <div className="mt-6 text-center">
         <a
-          href="mailto:youremail@example.com"
-          className="bg-cyan-500 text-white px-4 py-2 rounded-lg shadow hover:bg-cyan-600 transition"
+          href="mailto:muktaribro13@gmail.com"
+          className="bg-secondary text-white px-6 py-3 rounded-xl shadow-lg hover:bg-rose-600 transition"
         >
-          Contact Us
+          📩 Contact Us
         </a>
       </div>
     </div>

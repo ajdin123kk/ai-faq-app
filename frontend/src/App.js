@@ -1,55 +1,63 @@
 import React, { useState } from "react";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
 
 function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleAsk = async () => {
-    if (!question.trim()) return;
+    if (!question.trim()) {
+      setError("⚠️ Please type a question.");
+      return;
+    }
+    setError("");
     setLoading(true);
-    setAnswer("");
-
     try {
       const res = await axios.post(
-        "https://ai-faq-app.onrender.com/api/ask",
+        "https://ai-faq-app.onrender.com/api/ask", 
         { question }
       );
-      setAnswer(res.data.answer || "No answer returned.");
+      setAnswer(res.data.answer);
     } catch (err) {
-      console.error(err);
-      setAnswer("❌ Error fetching response. Please try again.");
+      setError("❌ Error fetching response. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
-      <div className="bg-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-2xl">
-        <h1 className="text-3xl font-bold text-center mb-6 text-blue-400">
-          AI FAQ Assistant 🤖
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-indigo-200 via-white to-purple-200 p-4">
+      <div className="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold text-center mb-6 text-indigo-600">
+          🤖 AI FAQ Assistant
         </h1>
-        <div className="flex gap-3 mb-4">
+
+        <div className="flex gap-2 mb-4">
           <input
             type="text"
-            placeholder="Ask me anything..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            className="flex-1 border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
+            placeholder="Ask me anything..."
+            className="flex-grow border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-400"
           />
           <button
             onClick={handleAsk}
             disabled={loading}
-            className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+            className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-xl transition disabled:opacity-50"
           >
             {loading ? "Thinking..." : "Ask"}
           </button>
         </div>
+
+        {error && <p className="text-red-500 mb-4">{error}</p>}
+
         {answer && (
-          <div className="border border-gray-600 rounded-lg p-4 bg-gray-700 mt-4">
-            <p className="whitespace-pre-wrap text-gray-100">{answer}</p>
+          <div className="mt-4 bg-gray-50 border rounded-xl p-4 shadow-inner">
+            <h2 className="font-semibold text-gray-700 mb-2">Answer:</h2>
+            <ReactMarkdown className="prose prose-indigo">{answer}</ReactMarkdown>
           </div>
         )}
       </div>

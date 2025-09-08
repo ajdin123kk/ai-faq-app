@@ -1,19 +1,17 @@
 import React, { useState } from "react";
 import axios from "axios";
-import ReactMarkdown from "react-markdown";
-import "./styles.css";
 
 function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const suggestedQuestions = [
-    "How can I increase my online sales?",
-    "What’s the best way to handle customer complaints?",
-    "How do I improve my website SEO?",
-    "Should I run Facebook or Google ads?",
-    "What’s the best way to follow up with clients?",
+  const suggestions = [
+    "What services do you offer?",
+    "How much does it cost?",
+    "How do I get started?",
+    "Do you offer support?",
+    "Do you work internationally?"
   ];
 
   const handleAsk = async (q) => {
@@ -21,69 +19,78 @@ function App() {
     if (!userQuestion.trim()) return;
 
     setLoading(true);
-    setAnswer("");
-
     try {
       const res = await axios.post(
         "https://ai-faq-app.onrender.com/ask",
         { question: userQuestion },
         { headers: { "Content-Type": "application/json" } }
       );
-
       setAnswer(res.data.answer);
-    } catch (err) {
+    } catch (error) {
+      console.error("Error fetching response:", error);
       setAnswer("❌ Error fetching response. Please try again.");
-    } finally {
-      setLoading(false);
-      setQuestion("");
     }
+    setLoading(false);
   };
 
   return (
-    <div className="app-container">
-      <header className="header">
-        <h1>💼 Business FAQ Assistant</h1>
-        <p>Ask me common business questions, or pick from the suggestions below.</p>
-      </header>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-purple-100 p-6">
+      <div className="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-2xl">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-4">
+          🤖 Business FAQ Assistant
+        </h1>
+        <p className="text-center text-gray-600 mb-6">
+          Ask me common business questions, or pick from the suggestions below.
+        </p>
 
-      <div className="faq-suggestions">
-        {suggestedQuestions.map((q, index) => (
+        {/* Suggestions */}
+        <div className="flex flex-wrap justify-center gap-2 mb-6">
+          {suggestions.map((s, idx) => (
+            <button
+              key={idx}
+              onClick={() => handleAsk(s)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full text-sm shadow-md transition"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+
+        {/* Input Box */}
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Type your question here..."
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-900"
+          />
           <button
-            key={index}
-            className="suggestion-btn"
-            onClick={() => handleAsk(q)}
+            onClick={() => handleAsk()}
+            disabled={loading}
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow-md transition"
           >
-            {q}
+            {loading ? "Thinking..." : "Ask"}
           </button>
-        ))}
-      </div>
+        </div>
 
-      <div className="chat-box">
-        <input
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          placeholder="Type your question here..."
-        />
-        <button onClick={() => handleAsk()} disabled={loading}>
-          {loading ? "⏳ Thinking..." : "Ask"}
-        </button>
-      </div>
-
-      <div className="answer-box">
+        {/* Answer Box */}
         {answer && (
-          <div className="answer-card">
-            <ReactMarkdown>{answer}</ReactMarkdown>
+          <div className="bg-gray-100 border-l-4 border-blue-500 p-4 rounded-lg text-gray-800 whitespace-pre-line">
+            {answer}
           </div>
         )}
-      </div>
 
-      <footer className="footer">
-        <p>
-          📩 Contact us:{" "}
-          <a href="mailto:muktaribro13@gmail.com">muktaribro13@gmail.com</a>
-        </p>
-      </footer>
+        {/* Contact Us */}
+        <div className="mt-6 text-center">
+          <a
+            href="mailto:muktaribro13@gmail.com"
+            className="text-blue-600 hover:underline font-medium"
+          >
+            📩 Contact Us
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

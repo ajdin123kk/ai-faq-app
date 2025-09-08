@@ -1,28 +1,24 @@
 import React, { useState } from "react";
-import ReactMarkdown from "react-markdown";
-import "./App.css";
 import axios from "axios";
+import ReactMarkdown from "react-markdown";
+import { Search } from "lucide-react";
+import FAQCard from "./components/FAQCard";
 
 function App() {
-  const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
+  const [query, setQuery] = useState("");
+  const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Backend endpoint (your Render URL)
-  const BACKEND = "https://ai-faq-app.onrender.com/ask";
-
-  const handleSubmit = async (e) => {
-    e?.preventDefault();
-    if (!question.trim()) return;
+  const handleSearch = async () => {
+    if (!query.trim()) return;
     setLoading(true);
-    setAnswer("");
-
     try {
-      const res = await axios.post(BACKEND, { question });
-      setAnswer(res?.data?.answer || "No answer received from backend.");
+      const res = await axios.post("https://ai-faq-app.onrender.com/api/ask", {
+        question: query,
+      });
+      setResponse(res.data.answer || "No answer found.");
     } catch (err) {
-      console.error(err);
-      setAnswer("⚠️ Error connecting to backend. Please try again later.");
+      setResponse("Error fetching response.");
     } finally {
       setLoading(false);
     }
@@ -30,23 +26,25 @@ function App() {
 
   return (
     <div className="app">
-      <h1>🤖 AI FAQ App</h1>
-
-      <form onSubmit={handleSubmit} className="form">
+      <h1>🤖 AI FAQ Assistant</h1>
+      <div className="search-box">
         <input
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
+          type="text"
           placeholder="Ask me anything..."
-          className="input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSearch()}
         />
-        <button className="btn" type="submit" disabled={loading}>
-          {loading ? "Thinking..." : "Ask"}
+        <button onClick={handleSearch} disabled={loading}>
+          <Search size={18} /> {loading ? "Thinking..." : "Ask"}
         </button>
-      </form>
-
-      <div className="answer">
-        {answer ? <ReactMarkdown>{answer}</ReactMarkdown> : <p>No answer yet.</p>}
       </div>
+
+      {response && (
+        <FAQCard>
+          <ReactMarkdown>{response}</ReactMarkdown>
+        </FAQCard>
+      )}
     </div>
   );
 }

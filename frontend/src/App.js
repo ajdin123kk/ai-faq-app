@@ -26,9 +26,9 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-6">
-      <div className="bg-white shadow-lg rounded-2xl p-8 w-full max-w-2xl">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">
+    <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-6">
+      <div className="bg-gray-800 shadow-xl rounded-2xl p-8 w-full max-w-2xl">
+        <h1 className="text-3xl font-bold text-center mb-6 text-blue-400">
           AI FAQ Assistant 🤖
         </h1>
         <div className="flex gap-3 mb-4">
@@ -37,7 +37,7 @@ function App() {
             placeholder="Ask me anything..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="flex-1 border border-gray-600 bg-gray-700 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400"
           />
           <button
             onClick={handleAsk}
@@ -48,8 +48,8 @@ function App() {
           </button>
         </div>
         {answer && (
-          <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
-            <p className="whitespace-pre-wrap">{answer}</p>
+          <div className="border border-gray-600 rounded-lg p-4 bg-gray-700 mt-4">
+            <p className="whitespace-pre-wrap text-gray-100">{answer}</p>
           </div>
         )}
       </div>

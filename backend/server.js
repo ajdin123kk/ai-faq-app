@@ -1,58 +1,48 @@
-const express = require("express");
-const cors = require("cors");
-const bodyParser = require("body-parser");
+import express from "express";
+import cors from "cors";
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-
 app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Business-friendly FAQs
 const faqs = {
-  "hi": "Hello 👋 Welcome! How can I help you today?",
-  "hello": "Hi there! 😊 Feel free to ask me about our services.",
-  "what services do you offer": "We provide professional AI-powered FAQ systems, websites, and business automation tools.",
-  "how much does it cost": "Pricing depends on the project, but most small business setups start at $99. Custom solutions may cost more.",
-  "how do i get started": "Getting started is easy! Just tell us about your business and we’ll set up your FAQ assistant within 1–3 days.",
-  "do you offer support": "Yes! We provide ongoing support and updates so your FAQ system always works smoothly.",
-  "can you customize it": "Absolutely ✅. We can customize the assistant with your business name, services, and branding.",
-  "how long does it take": "Setup usually takes 1–3 business days depending on the complexity.",
-  "do you work internationally": "Yes 🌍, we work with businesses worldwide.",
-  "can this help me get more customers": "Definitely! 🚀 An FAQ assistant saves time, answers customer questions instantly, and makes your business look professional.",
-  "can i see a demo": "Sure! This chat you’re using right now is an example demo.",
+  "What services do you offer?": "We provide AI-powered FAQ assistants, chatbot development, and business automation tools.",
+  "How much does it cost?": "Pricing depends on your needs. We offer flexible plans starting from $99/month.",
+  "How do I get started?": "Simply contact us and we’ll help you set up your AI assistant within a few days.",
+  "Do you offer support?": "Yes! We provide full customer support via email and chat.",
+  "Do you work internationally?": "Absolutely, we work with businesses around the world 🌍."
 };
 
-// API endpoint
 app.post("/ask", (req, res) => {
-  const question = req.body.question?.toLowerCase().trim();
+  const { question } = req.body;
 
   if (!question) {
-    return res.status(400).json({ answer: "⚠️ Please type a question to continue." });
+    return res.status(400).json({ answer: "❌ Please provide a question." });
   }
 
-  const answer = faqs[question];
+  const normalizedQ = question.trim().toLowerCase();
 
-  if (answer) {
-    return res.json({ answer });
-  } else {
-    return res.json({
-      answer: `🤔 I’m not sure about "${req.body.question}".  
-Here are some things you can ask me:  
+  // Try to match
+  const matchedKey = Object.keys(faqs).find(
+    (q) => q.toLowerCase() === normalizedQ
+  );
+
+  if (matchedKey) {
+    return res.json({ answer: faqs[matchedKey] });
+  }
+
+  // Friendly fallback
+  return res.json({
+    answer: `🤔 I don’t have a direct answer for: **"${question}"**.  
+Here are some questions you can ask me instead:  
 - What services do you offer?  
 - How much does it cost?  
 - How do I get started?  
 - Do you offer support?  
-- Do you work internationally?`,
-    });
-  }
+- Do you work internationally?`
+  });
 });
 
-// Health check
-app.get("/", (req, res) => {
-  res.json({ message: "Backend is running!" });
-});
-
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
+app.listen(5000, () => {
+  console.log("✅ Server running on http://localhost:5000");
 });

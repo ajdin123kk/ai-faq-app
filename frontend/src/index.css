@@ -2,19 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles */
+/* Custom overrides to make sure text and buttons are visible */
 body {
-  @apply bg-gray-100 text-gray-900;
+  @apply bg-gradient-to-br from-blue-50 to-purple-100 text-gray-900;
 }
 
-input, textarea {
-  @apply text-gray-900 bg-white;
+/* make suggestion buttons consistent */
+.suggestion-btn {
+  @apply bg-blue-600 text-white px-4 py-2 rounded-full text-sm shadow-md;
 }
 
-button {
-  @apply rounded-lg px-4 py-2 font-semibold transition;
-}
-
-button:hover {
-  @apply opacity-80;
+.suggestion-btn:hover {
+  @apply bg-blue-700;
 }

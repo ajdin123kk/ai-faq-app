@@ -77,7 +77,19 @@ function App() {
         {/* Answer Box */}
         {answer && (
           <div className="bg-gray-100 border-l-4 border-blue-500 p-4 rounded-lg text-gray-800 whitespace-pre-line">
-            {answer}
+            {answer.split("\n").map((line, idx) =>
+              line.startsWith("- ") ? (
+                <button
+                  key={idx}
+                  onClick={() => handleAsk(line.replace("- ", ""))}
+                  className="block text-left w-full px-2 py-1 rounded hover:bg-blue-100 transition"
+                >
+                  {line}
+                </button>
+              ) : (
+                <p key={idx}>{line}</p>
+              )
+            )}
           </div>
         )}
 

